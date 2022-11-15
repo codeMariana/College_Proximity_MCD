@@ -1,0 +1,85 @@
+---
+title: "Práctica 2"
+author: "Mariana y Lizzy"
+date: "2022-11-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(kableExtra)
+library(ggplot2)
+library(stats)
+library(glmnet)
+library(ivreg)
+```
+
+
+# 1. Adjunte el paquete AER y cargue los datos de CollegeDistance.
+
+
+```{r, echo=FALSE}
+install.packages("AER")
+library(AER)
+data(CollegeDistance)
+```
+
+# 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia
+
+```{r}
+summary(CollegeDistance)
+hist(CollegeDistance$distance)
+ggplot(CollegeDistance, aes(x = distance, fill = urban)) + 
+  geom_histogram()
+
+ggplot(CollegeDistance, aes(x = distance, y = urban)) + 
+  geom_boxplot()
+
+```
+
+# 3. . Estime dos regresiones cuyos resultados no son confiables debido al problema de selección. Guarde estos resultados para compararlos posteriormente con los obtenidos mediante el enfoque de variables instrumentales aplicado por Card (1993). Estime por ejemplo el modelo:
+$$log|wage| = \beta_0 +\beta_1 log|education| + u$$
+```{r}
+m1<-lm(log(wage)~log(education), CollegeDistance)
+summary(m1)
+
+m2<-lm(log(wage)~log(education)+ ethnicity+gender+region+urban, CollegeDistance)
+summary(m2)
+```
+
+
+# 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
+
+
+# 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
+
+La variación explicada por la educación es la R2 del modelo 1. 
+
+```{r}
+install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+
+cor_vars<- CollegeDistance %>% select(distance, wage, education)
+log_cor_vars<- CollegeDistance %>% mutate(log_wage=log(wage),
+                                      log_educ=log(education),
+                                      log_dist=log(distance+1)) %>% 
+                                      select(c(log_wage, log_educ, log_dist))
+
+chart.Correlation(cor_vars, histogram = TRUE, method = "pearson")
+chart.Correlation(log_cor_vars, histogram = TRUE, method = "pearson")
+```
+# 6. Repita las estimaciones anteriores utilizando IV, es decir, utilice la distancia como un instrumento para la educación en ambas regresiones mediante la función ivreg(). Guarde sus resultados y obtenga los errores estándar robustos para ambos modelos.
+
+
+```{r}
+m3 <- ivreg(wage ~ education | distance,data = CollegeDistance)  
+summary(m3)
+m2<-lm(log(wage)~log(education)+ ethnicity+gender+region+urban, CollegeDistance)
+
+m4<-ivreg(wage ~ education + ethnicity+gender+region+urban|ethnicity+gender+region+urban+distance,data = CollegeDistance)
+summary(m4)
+```
+
