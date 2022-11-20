@@ -1,7 +1,9 @@
 ---
-title: "Práctica 2"
-author: "Mariana y Lizzy"
-date: "2022-11-15"
+title: "College Proximity: Instrumental Variable"
+author: 
+  - Mariana Lugo 
+  - Lizzy Gamboa´
+date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
@@ -9,22 +11,45 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+# Modelación en Ciencia de Datos 
+## Variables Instrumentales
+
+Para la elaboración de la práctica se utilizan las siguientes librerías: 
+```{r, message=FALSE}
+install.packages("AER")
+library(AER)
+library(dplyr)
 library(kableExtra)
 library(ggplot2)
 library(stats)
 library(glmnet)
 library(ivreg)
 ```
-
+Para el ejercicio se utilizan los datos de la encuesta *High School and Beyond* realizada por el Departamento de Educación en 1980, con seguimiento en 1986. La encuesta incluye a estudiantes de aproximadamente 1,100 preparatorias.
 
 # 1. Adjunte el paquete AER y cargue los datos de CollegeDistance.
 
+Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las variables se definen de la siguiente manera:
+
+1. gender: variable categórica que indica el género. 
+2. ethnicity: variable categórica que indica la etnia (African-American, Hispanic or other).
+3. score: variable numérica de la puntuación del año base de la prueba compuesta . Estas son pruebas de rendimiento que se dan a los estudiantes de último año de secundaria de la muestra.
+4. fcollege: variable categórica que indica si el padre es graduado de college. 
+5. mcollege: variable categórica que indica si la madre es graduada de college.
+6. home: variable categórica que indica si la familia es dueña de la casa.
+7. urban: variable categórica que indica si la escuela está en una zona urbana.
+8. unemp: variable numérica de la tasa de desempleo del condado en 1980.
+9. wage:  variable numérica del salario estatal por hora en la industria manufacturera en 1980.
+10. distance: distancia a la 4-year colleg (en 10 millas).
+11. tuition: colegiatura promedio de 4-year college estatal (en 1000 USD).
+12. education:número de años de educación.
+13. income: variable categórica que indica si el ingreso familiar es mayor a 25,000 USD al año.
+14. region: variable categórica que indica la región (West u otra)
 
 ```{r, echo=FALSE}
-install.packages("AER")
-library(AER)
 data(CollegeDistance)
+kable(head(CollegeDistance),booktabs=TRUE) %>% 
+  kable_styling(latex_options="scale_down")
 ```
 
 # 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia
