@@ -1,8 +1,8 @@
 ---
-title: "College Proximity: Instrumental Variable"
-author: 
-  - Mariana Lugo 
-  - Lizzy Gamboa´
+title: 'College Proximity: Instrumental Variable'
+author:
+- Mariana Lugo
+- Lizzy Gamboa´
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -18,6 +18,7 @@ Para la elaboración de la práctica se utilizan las siguientes librerías:
 ```{r, message=FALSE}
 install.packages("AER")
 library(AER)
+library(table1)
 library(dplyr)
 library(kableExtra)
 library(ggplot2)
@@ -45,23 +46,34 @@ Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las
 12. education:número de años de educación.
 13. income: variable categórica que indica si el ingreso familiar es mayor a 25,000 USD al año.
 14. region: variable categórica que indica la región (West u otra)
+\newpage
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 data(CollegeDistance)
 kable(head(CollegeDistance),booktabs=TRUE) %>% 
   kable_styling(latex_options="scale_down")
 ```
 
-# 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia
+# 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia.
+
+Se muestra la descripción general de las variables. Específicamente, se puede notar el alrededor del 77% de las escuelas no están en zonas urbanas y que la media de la distancia son 18 millas. Las familias son de ingresos bajos donde la mayoría de los alumnos tiene padres y madres que no tiene un título de college. 
+
+```{r, warning=FALSE}
+table1::table1(urban~ ., data = CollegeDistance)
+```
+
+Se muestra la distribución de la distancia general y separando por zona urbana con el histograma y una gŕafica de caja y brazos. La distribución general de la distancia está sesgada a la derecha. Además con la gráfica de caja y brazos podemos observar que aquellas escuelas en zona urbana tienen un menor promedio de distancia que las que nos están en un área urbana. 
 
 ```{r}
-summary(CollegeDistance)
-hist(CollegeDistance$distance)
+
+ggplot(CollegeDistance, aes(x = distance)) + 
+  geom_histogram()
+
 ggplot(CollegeDistance, aes(x = distance, fill = urban)) + 
   geom_histogram()
 
-ggplot(CollegeDistance, aes(x = distance, y = urban)) + 
-  geom_boxplot()
+ggplot(CollegeDistance, aes(x = distance, y = urban)) +
+geom_boxplot()
 
 ```
 
