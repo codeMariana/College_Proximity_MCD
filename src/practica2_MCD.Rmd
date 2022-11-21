@@ -26,10 +26,11 @@ library(stargazer)
 library(stats)
 library(glmnet)
 library(ivreg)
+library(GGally)
 ```
 Para el ejercicio se utilizan los datos de la encuesta *High School and Beyond* realizada por el Departamento de Educación en 1980, con seguimiento en 1986. La encuesta incluye a estudiantes de aproximadamente 1,100 preparatorias.
 
-# 1. Adjunte el paquete AER y cargue los datos de CollegeDistance.
+### 1. Adjunte el paquete AER y cargue los datos de CollegeDistance.
 
 Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las variables se definen de la siguiente manera:
 
@@ -55,7 +56,7 @@ kable(head(CollegeDistance),booktabs=TRUE) %>%
   kable_styling(latex_options="scale_down")
 ```
 
-# 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia.
+### 2. Obtenga una descripción general del conjunto de datos. Específicamente, tome en cuenta que la variable distancia (la distancia a la escuela más cercana en 10 millas) servirá como instrumento en las estimaciones. Utilice un histograma para visualizar la distribución de la distancia.
 
 Se muestra la descripción general de las variables. Específicamente, se puede notar el alrededor del 77% de las escuelas no están en zonas urbanas y que la media de la distancia son 18 millas. Las familias son de ingresos bajos donde la mayoría de los alumnos tiene padres y madres que no tiene un título de college. 
 
@@ -79,7 +80,7 @@ geom_boxplot()
 
 ```
 
-# 3. Estime dos regresiones cuyos resultados no son confiables debido al problema de selección. Guarde estos resultados para compararlos posteriormente con los obtenidos mediante el enfoque de variables instrumentales aplicado por Card (1993). Estime por ejemplo el modelo:
+### 3. Estime dos regresiones cuyos resultados no son confiables debido al problema de selección. Guarde estos resultados para compararlos posteriormente con los obtenidos mediante el enfoque de variables instrumentales aplicado por Card (1993). Estime por ejemplo el modelo:
 
 El modelo 1 se define como: 
 $$log|wage| = \beta_0 +\beta_1 log|education| + u$$
@@ -96,26 +97,23 @@ stargazer(m2, type="text")
 ```
 
 
-# 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
+### 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
 
 Se utiliza la variable de distancia como instrumento para la educación ya que la distancia a una universidad con programas de 4 añosestará correlacionada con la decisión de tener y/o terminar con el título o grado de college, pero puede ser que esta variable, per se, no sea una buena predictora del salario (fuera de que éste aumenta la educación de manera exógena). Por lo tanto, la distancia es un instrumento válido para la eduación. En su artículo, Card establece que aquellos alumnos que crecieron sin una universidad cerca enfrentan mayores costos en su educación, ya que la opción de vivir en casa se imposibilita. Mayores costos implican una menor inversión en educación de mayor calidad, sobretodo para alumnos de familias de ingresos menores. 
 
-# 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
+### 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
 
-La variación explicada por la educación es la R2 del modelo 1. 
+Se muestra las correlaciones de las variables mencionadas. Se puede observar que existen una correlación entre la distancia y la variable de educación. La correlación se mantien al aplicar logarítmos a las variables. Además, la variación explicada por la educación en el salario es la $R^2$ del modelo 1, es decir 0.0006479. 
 
 ```{r}
-install.packages("PerformanceAnalytics")
-library(PerformanceAnalytics)
-
 cor_vars<- CollegeDistance %>% select(distance, wage, education)
+ggpairs(cor_vars) 
+
 log_cor_vars<- CollegeDistance %>% mutate(log_wage=log(wage),
                                       log_educ=log(education),
                                       log_dist=log(distance+1)) %>% 
                                       select(c(log_wage, log_educ, log_dist))
-
-chart.Correlation(cor_vars, histogram = TRUE, method = "pearson")
-chart.Correlation(log_cor_vars, histogram = TRUE, method = "pearson")
+ggpairs(log_cor_vars) 
 ```
 # 6. Repita las estimaciones anteriores utilizando IV, es decir, utilice la distancia como un instrumento para la educación en ambas regresiones mediante la función ivreg(). Guarde sus resultados y obtenga los errores estándar robustos para ambos modelos.
 
@@ -129,3 +127,4 @@ m4<-ivreg(wage ~ education + ethnicity+gender+region+urban|ethnicity+gender+regi
 summary(m4)
 ```
 
+#7. Verifique que sus resultados coinciden con los obtenidos cuando utiliza el procedimiento de estimación mediante las dos regresiones de MC2E para ambos modelos.
