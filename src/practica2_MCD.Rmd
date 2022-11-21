@@ -22,6 +22,7 @@ library(table1)
 library(dplyr)
 library(kableExtra)
 library(ggplot2)
+library(stargazer)
 library(stats)
 library(glmnet)
 library(ivreg)
@@ -46,7 +47,7 @@ Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las
 12. education:número de años de educación.
 13. income: variable categórica que indica si el ingreso familiar es mayor a 25,000 USD al año.
 14. region: variable categórica que indica la región (West u otra)
-\newpage
+
 
 ```{r, echo=TRUE}
 data(CollegeDistance)
@@ -62,9 +63,10 @@ Se muestra la descripción general de las variables. Específicamente, se puede 
 table1::table1(urban~ ., data = CollegeDistance)
 ```
 
+\newpage
 Se muestra la distribución de la distancia general y separando por zona urbana con el histograma y una gŕafica de caja y brazos. La distribución general de la distancia está sesgada a la derecha. Además con la gráfica de caja y brazos podemos observar que aquellas escuelas en zona urbana tienen un menor promedio de distancia que las que nos están en un área urbana. 
 
-```{r}
+```{r, message=FALSE}
 
 ggplot(CollegeDistance, aes(x = distance)) + 
   geom_histogram()
@@ -77,19 +79,26 @@ geom_boxplot()
 
 ```
 
-# 3. . Estime dos regresiones cuyos resultados no son confiables debido al problema de selección. Guarde estos resultados para compararlos posteriormente con los obtenidos mediante el enfoque de variables instrumentales aplicado por Card (1993). Estime por ejemplo el modelo:
-$$log|wage| = \beta_0 +\beta_1 log|education| + u$$
-```{r}
-m1<-lm(log(wage)~log(education), CollegeDistance)
-summary(m1)
+# 3. Estime dos regresiones cuyos resultados no son confiables debido al problema de selección. Guarde estos resultados para compararlos posteriormente con los obtenidos mediante el enfoque de variables instrumentales aplicado por Card (1993). Estime por ejemplo el modelo:
 
-m2<-lm(log(wage)~log(education)+ ethnicity+gender+region+urban, CollegeDistance)
-summary(m2)
+El modelo 1 se define como: 
+$$log|wage| = \beta_0 +\beta_1 log|education| + u$$
+
+El modelo 2 se define como: 
+$$log|wage| = \beta_0 +\beta_1 log|education| +\beta_2 ethnicity +\beta_3log|unemp|+\beta_4gender+\beta_5region+\beta_6urban+  u$$
+\newpage
+```{r, warning=FALSE}
+m1<-lm(log(wage)~log(education), CollegeDistance)
+stargazer(m1, type="text")
+
+m2<-lm(log(wage)~log(education)+ ethnicity+ unemp+ gender+region+urban, CollegeDistance)
+stargazer(m2, type="text")
 ```
 
 
 # 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
 
+Se utiliza la
 
 # 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
 
