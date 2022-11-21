@@ -1,5 +1,5 @@
 ---
-title: 'College Proximity: Instrumental Variable'
+title: 'College Proximity: Instrumental Variables'
 author:
 - Mariana Lugo
 - Lizzy Gamboa
@@ -28,9 +28,11 @@ library(glmnet)
 library(ivreg)
 library(GGally)
 ```
-Para el ejercicio se utilizan los datos de la encuesta *High School and Beyond* realizada por el Departamento de Educación en 1980, con seguimiento en 1986. La encuesta incluye a estudiantes de aproximadamente 1,100 preparatorias.
+
 
 ### 1. Adjunte el paquete AER y cargue los datos de CollegeDistance.
+
+Para el ejercicio se utilizan los datos de la encuesta *High School and Beyond* realizada por el Departamento de Educación en 1980, con seguimiento en 1986. La encuesta incluye a estudiantes de aproximadamente 1,100 preparatorias.
 
 Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las variables se definen de la siguiente manera:
 
@@ -99,7 +101,7 @@ stargazer(m2, type="text")
 
 ### 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
 
-Se utiliza la variable de distancia como instrumento para la educación ya que la distancia a una universidad con programas de 4 añosestará correlacionada con la decisión de tener y/o terminar con el título o grado de college, pero puede ser que esta variable, per se, no sea una buena predictora del salario (fuera de que éste aumenta la educación de manera exógena). Por lo tanto, la distancia es un instrumento válido para la eduación. En su artículo, Card establece que aquellos alumnos que crecieron sin una universidad cerca enfrentan mayores costos en su educación, ya que la opción de vivir en casa se imposibilita. Mayores costos implican una menor inversión en educación de mayor calidad, sobretodo para alumnos de familias de ingresos menores. 
+Se utiliza la variable de distancia como instrumento para la educación ya que la distancia a una universidad con programas de 4 años estará correlacionada con la decisión de tener y/o terminar con el título o grado de college, pero puede ser que esta variable, per se, no sea una buena predictora del salario (fuera de que éste aumenta la educación de manera exógena). Por lo tanto, la distancia es un instrumento válido para la eduación. En su artículo, Card establece que aquellos alumnos que crecieron sin una universidad cerca enfrentan mayores costos en su educación, ya que la opción de vivir en casa se imposibilita. Mayores costos implican una menor inversión en educación de mayor calidad, sobretodo para alumnos de familias de ingresos menores. 
 
 ### 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
 
@@ -170,6 +172,23 @@ kable(MC2E(Y = "log(wage)",
 
 ### 8. Interprete sus resultados en el contexto del problema, esto es, cuáles son los rendimientos de la educación estimados y el efecto del sesgo de selección en el modelo.
 
+La regresión del MC2E considera otras variables demográficas como control que son significativas para el salario (definido como los rendimientos de la educación) además de los años de educación. Éstas son:
+
+* La tasa de desempleo en el condado tiene una relación positiva con el salario: entre mayor tasa, mayor es es el salario. La interpretación es que condados con mayores tasas de desempleo pueden ser indicativos de una mayor escasez de oferta laboral, por lo tanto se refleja en mayores salarios. 
+* La etnia tiene una relación negativa con el salario cuando son afroamericanos o hispanos. 
+* La región oeste tiene una relación negativa con el salario. 
+
+* La educación resultó significativa, con una relación positiva después de los controles y quitando el sesgo por la distancia. Sin embargo, aún quitando el sesgo de la distancia y considerando las otras variables de control, la educación tiene el efecto de que por un año adicional de educación se espera que aumente el ingreso por aproximadamente 6.7%. 
+
 ### 9. Realice las pruebas de verificación de variables instrumentales (endogeneidad de la regresora, relevancia del instrumento y exogeneidad del instrumento).
 
 ### 10. Pruebe si su instrumento es débil. Tome en cuenta que las familias con un fuerte interés por la educación pueden mudarse a vivir cerca de las universidades. Además, los vecindarios cercanos a las universidades pueden tener mercados laborales más fuertes reflejados en ingresos más altos. Tales características pueden invalidar el instrumento, ya que introducen variables no observadas que influyen en los ingresos, pero que no pueden ser capturadas por años de escolaridad, la medida de educación.
+
+
+## Bibliografía
+
+- Card, David, (1993), Using Geographic Variation in College Proximity to Estimate the Return to Schooling, No 4483, NBER Working Papers, National Bureau of Economic Research, Inc.
+
+- Introduction to Econometrics with R: https://www.econometrics-with-r.org/12-ivr.html 
+
+
