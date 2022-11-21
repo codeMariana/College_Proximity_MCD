@@ -103,7 +103,7 @@ Se utiliza la variable de distancia como instrumento para la educación ya que l
 
 ### 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
 
-Se muestra las correlaciones de las variables mencionadas. Se puede observar que existen una correlación entre la distancia y la variable de educación. La correlación se mantien al aplicar logarítmos a las variables. Además, la variación explicada por la educación en el salario es la $R^2$ del modelo 1, es decir 0.0006479. 
+Se muestra las correlaciones de las variables mencionadas. Se puede observar que existen una correlación entre la distancia y la variable de educación. La correlación se mantien al aplicar logarítmos a las variables. Además, la variación explicada por la distancia en el en la educación es la $R^2$, es decir  0.008683088. 
 
 ```{r}
 cor_vars<- CollegeDistance %>% select(distance, wage, education)
@@ -114,6 +114,9 @@ log_cor_vars<- CollegeDistance %>% mutate(log_wage=log(wage),
                                       log_dist=log(distance+1)) %>% 
                                       select(c(log_wage, log_educ, log_dist))
 ggpairs(log_cor_vars) 
+
+R2 <-summary(lm(education ~ distance, data = CollegeDistance))$r.squared 
+print(R2)
 ```
 # 6. Repita las estimaciones anteriores utilizando IV, es decir, utilice la distancia como un instrumento para la educación en ambas regresiones mediante la función ivreg(). Guarde sus resultados y obtenga los errores estándar robustos para ambos modelos.
 
@@ -121,6 +124,7 @@ ggpairs(log_cor_vars)
 ```{r}
 m3 <- ivreg(wage ~ education | distance,data = CollegeDistance)  
 summary(m3)
+
 m2<-lm(log(wage)~log(education)+ ethnicity+gender+region+urban, CollegeDistance)
 
 m4<-ivreg(wage ~ education + ethnicity+gender+region+urban|ethnicity+gender+region+urban+distance,data = CollegeDistance)
