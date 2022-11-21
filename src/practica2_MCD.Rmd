@@ -182,30 +182,37 @@ La regresión del MC2E considera otras variables demográficas como control que 
 
 ### 9. Realice las pruebas de verificación de variables instrumentales (endogeneidad de la regresora, relevancia del instrumento y exogeneidad del instrumento).
 
-Exogeneidad: 
-$Cov (Zi , ui ) = 0 $ 
+
+Para poder hacer las pruebas de *endogeneidad** y *exogeneidad** necesitamos las pruebas de Hausman y Sargan respectivamente, esto podemos observarlo en los siguientes resultados: 
+
+
+
+Donde Hausman nos dice que existe endogeneidad: 
 
 ```{r}
+summary(m4, diagnostics = T)
 
+
+m7 <- lm(residuals(m4) ~ education + ethnicity + unemp + gender + 
+           region + urban + distance, data = CollegeDistance)
+
+
+Chi_test <- linearHypothesis(m7, 
+                               "distance = 0", 
+                               test = "Chisq")
+Chi_test
+ 
+```
+Como podemos ver los grados de libertad es igual a 1, sin embargo deberiamos de tener $k-1$ en este caso
+
+```{r}
+pchisq(Chi_test[2,5], df = 0, lower.tail = FALSE)
 ```
 
-Relevancia del instrumento: 
-$Cov(Xi,Zi) ̸= 0 $
-
-  ```{r}
-
-```
+Rechazamos la hipótesis de que ambos instrumentos son exógenos.
 
 
-
-
-
-
-
-### 10. Pruebe si su instrumento es débil. Tome en cuenta que las familias con un fuerte interés por la educación pueden mudarse a vivir cerca de las universidades. Además, los vecindarios cercanos a las universidades pueden tener mercados laborales más fuertes reflejados en ingresos más altos. Tales características pueden invalidar el instrumento, ya que introducen variables no observadas que influyen en los ingresos, pero que no pueden ser capturadas por años de escolaridad, la medida de educación.
-
-
-Para  verificar la debilidad de un instrumento se debe usar la prueba F, si se tiene más de un instrumento. Para el caso de usar solo la distancia como instrumento, es suficiente con la regresión, es decir, el parametro que mide la relación del coeficiente, de igual manera hacermos el ejercicio:  
+Para  verificar la **relevancia** de un instrumento se debe usar la prueba F, si se tiene más de un instrumento. Para el caso de usar solo la distancia como instrumento, es suficiente con la regresión, es decir, el parametro que mide la relación del coeficiente, de igual manera hacermos el ejercicio:  
 
 
 
@@ -230,6 +237,12 @@ linearHypothesis(m5,
 
 Como se ha visto en la significancia de los modelos programados anteriormente, la variable distancia con la educación es un instrumento relevante cuando se consideran otras variables dentro del modelo. 
 
+
+
+### 10. Pruebe si su instrumento es débil. Tome en cuenta que las familias con un fuerte interés por la educación pueden mudarse a vivir cerca de las universidades. Además, los vecindarios cercanos a las universidades pueden tener mercados laborales más fuertes reflejados en ingresos más altos. Tales características pueden invalidar el instrumento, ya que introducen variables no observadas que influyen en los ingresos, pero que no pueden ser capturadas por años de escolaridad, la medida de educación.
+
+
+En este caso con las pruebas anteriores, podemos decir que nuestro instrumento es débil y los estimadores estan sesgados, por lo que nuestras estimaciones pueden ser poco confiables. 
 
 
 
