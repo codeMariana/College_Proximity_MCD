@@ -49,7 +49,7 @@ Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las
 13. income: variable categórica que indica si el ingreso familiar es mayor a 25,000 USD al año.
 14. region: variable categórica que indica la región (West u otra)
 
-
+\newpage
 ```{r, echo=TRUE}
 data(CollegeDistance)
 kable(head(CollegeDistance),booktabs=TRUE) %>% 
@@ -86,13 +86,13 @@ El modelo 1 se define como:
 $$log|wage| = \beta_0 +\beta_1 log|education| + u$$
 
 El modelo 2 se define como: 
-$$log|wage| = \beta_0 +\beta_1 log|education| +\beta_2 ethnicity +\beta_3log|unemp|+\beta_4gender+\beta_5region+\beta_6urban+  u$$
+$$log|wage| = \beta_0 +\beta_1 education +\beta_2 ethnicity +\beta_3unemp+\beta_4gender+\beta_5region+\beta_6urban+  u$$
 \newpage
 ```{r, warning=FALSE}
 m1<-lm(log(wage)~log(education), CollegeDistance)
 stargazer(m1, type="text")
 
-m2<-lm(log(wage)~log(education)+ ethnicity+ unemp+ gender+region+urban, CollegeDistance)
+m2<-lm(log(wage)~education+ ethnicity+ unemp+ gender+region+urban, CollegeDistance)
 stargazer(m2, type="text")
 ```
 
@@ -118,17 +118,58 @@ ggpairs(log_cor_vars)
 R2 <-summary(lm(education ~ distance, data = CollegeDistance))$r.squared 
 print(R2)
 ```
-# 6. Repita las estimaciones anteriores utilizando IV, es decir, utilice la distancia como un instrumento para la educación en ambas regresiones mediante la función ivreg(). Guarde sus resultados y obtenga los errores estándar robustos para ambos modelos.
+### 6. Repita las estimaciones anteriores utilizando IV, es decir, utilice la distancia como un instrumento para la educación en ambas regresiones mediante la función ivreg(). Guarde sus resultados y obtenga los errores estándar robustos para ambos modelos.
+
+Se corren los dos modelos con la función *ivreg()* :
+
+```{r, warning=FALSE}
+m3 <- ivreg(log(wage) ~ education | distance, data = CollegeDistance)           
+stargazer(m3, type="text")
 
 
-```{r}
-m3 <- ivreg(wage ~ education | distance,data = CollegeDistance)  
-summary(m3)
-
-m2<-lm(log(wage)~log(education)+ ethnicity+gender+region+urban, CollegeDistance)
-
-m4<-ivreg(wage ~ education + ethnicity+gender+region+urban|ethnicity+gender+region+urban+distance,data = CollegeDistance)
-summary(m4)
+m4<-ivreg(log(wage) ~ unemp + ethnicity + gender + urban + education + region | . - education + distance, data = CollegeDistance)
+stargazer(m4, type="text")
 ```
 
-#7. Verifique que sus resultados coinciden con los obtenidos cuando utiliza el procedimiento de estimación mediante las dos regresiones de MC2E para ambos modelos.
+Se obtienen los errores estándar robustos para ambos modelos: 
+
+```{r, warning=FALSE}
+coeftest(m3, vcov. = vcovHC, type = "HC1")
+coeftest(m4, vcov. = vcovHC, type = "HC1")
+```
+
+
+### 7. Verifique que sus resultados coinciden con los obtenidos cuando utiliza el procedimiento de estimación mediante las dos regresiones de MC2E para ambos modelos.
+
+Se crea la función para la regresión del estimador de mínimos cuadrados en dos etapas (MC2E). Se muestra que los resultados coinciden con las estimaciones del inciso anterior. 
+
+```{r}
+MC2E <- function(Y, X, W = NULL, Z, data) {
+ # regresión de la primera etapa y valores estimados
+ fs_model <- lm(as.formula(paste(X, "~", paste(c(Z, W), collapse = "+"))), data = data)
+ X_fitted <- fs_model$fitted.values
+  
+ # regresión de la segunda etapa
+ ss_model <- lm(as.formula(paste(Y, "~", paste(W, collapse = "+"), "+ X_fitted")),  data = data)
+
+ # coeficientes de la segunda etapa
+ return(
+   coefficients(ss_model)
+ )}
+          
+
+kable(MC2E(Y = "log(wage)", X = "education", Z = "distance", data = CollegeDistance))
+
+kable(MC2E(Y = "log(wage)", 
+     X = "education", 
+     W = c("unemp", "ethnicity", "gender", "urban", "region"), 
+     Z = "distance", 
+     data = CollegeDistance))
+```
+
+
+### 8. Interprete sus resultados en el contexto del problema, esto es, cuáles son los rendimientos de la educación estimados y el efecto del sesgo de selección en el modelo.
+
+### 9. Realice las pruebas de verificación de variables instrumentales (endogeneidad de la regresora, relevancia del instrumento y exogeneidad del instrumento).
+
+### 10. Pruebe si su instrumento es débil. Tome en cuenta que las familias con un fuerte interés por la educación pueden mudarse a vivir cerca de las universidades. Además, los vecindarios cercanos a las universidades pueden tener mercados laborales más fuertes reflejados en ingresos más altos. Tales características pueden invalidar el instrumento, ya que introducen variables no observadas que influyen en los ingresos, pero que no pueden ser capturadas por años de escolaridad, la medida de educación.
