@@ -4,7 +4,9 @@ author:
 - Mariana Lugo
 - Lizzy Gamboa
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -51,7 +53,9 @@ Se cargan los datos los cuales contienen 4,739 observaciones y 14 variables. Las
 13. income: variable categórica que indica si el ingreso familiar es mayor a 25,000 USD al año.
 14. region: variable categórica que indica la región (West u otra)
 
+Se imprime una muestra de los datos:
 \newpage
+
 ```{r, echo=TRUE}
 data(CollegeDistance)
 kable(head(CollegeDistance),booktabs=TRUE) %>% 
@@ -126,11 +130,10 @@ Se corren los dos modelos con la función *ivreg()* :
 
 ```{r, warning=FALSE}
 m3 <- ivreg(log(wage) ~ education | distance, data = CollegeDistance)           
-stargazer(m3, type="text")
 
 
 m4<-ivreg(log(wage) ~ unemp + ethnicity + gender + urban + education + region | . - education + distance, data = CollegeDistance)
-stargazer(m4, type="text")
+stargazer(m3, m4,type="text")
 ```
 
 Se obtienen los errores estándar robustos para ambos modelos: 
@@ -183,7 +186,7 @@ La regresión del MC2E considera otras variables demográficas como control que 
 ### 9. Realice las pruebas de verificación de variables instrumentales (endogeneidad de la regresora, relevancia del instrumento y exogeneidad del instrumento).
 
 
-Para poder hacer las pruebas de *endogeneidad** y *exogeneidad** necesitamos las pruebas de Hausman y Sargan respectivamente, esto podemos observarlo en los siguientes resultados: 
+Para poder hacer las pruebas de *endogeneidad* y *exogeneidad* necesitamos las pruebas de Hausman y Sargan respectivamente, esto podemos observarlo en los siguientes resultados: 
 
 
 
@@ -209,7 +212,7 @@ Como podemos ver los grados de libertad es igual a 1, sin embargo deberiamos de 
 pchisq(Chi_test[2,5], df = 0, lower.tail = FALSE)
 ```
 
-Rechazamos la hipótesis de que ambos instrumentos son exógenos.
+Rechazamos la hipótesis de que el instrumento es exógeno.
 
 
 Para  verificar la **relevancia** de un instrumento se debe usar la prueba F, si se tiene más de un instrumento. Para el caso de usar solo la distancia como instrumento, es suficiente con la regresión, es decir, el parametro que mide la relación del coeficiente, de igual manera hacermos el ejercicio:  
