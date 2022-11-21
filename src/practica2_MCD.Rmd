@@ -2,7 +2,7 @@
 title: 'College Proximity: Instrumental Variable'
 author:
 - Mariana Lugo
-- Lizzy Gamboa´
+- Lizzy Gamboa
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -98,7 +98,7 @@ stargazer(m2, type="text")
 
 # 4. ¿Por qué se puede utilizar la distancia a la escuela como instrumento? Justifique el motivo por el cual esta variable podría ser utilizada como un instrumento.
 
-Se utiliza la
+Se utiliza la variable de distancia como instrumento para la educación ya que la distancia a una universidad con programas de 4 añosestará correlacionada con la decisión de tener y/o terminar con el título o grado de college, pero puede ser que esta variable, per se, no sea una buena predictora del salario (fuera de que éste aumenta la educación de manera exógena). Por lo tanto, la distancia es un instrumento válido para la eduación. En su artículo, Card establece que aquellos alumnos que crecieron sin una universidad cerca enfrentan mayores costos en su educación, ya que la opción de vivir en casa se imposibilita. Mayores costos implican una menor inversión en educación de mayor calidad, sobretodo para alumnos de familias de ingresos menores. 
 
 # 5. Calcule las correlaciones de la distancia del instrumento con la educación regresora endógena y la variable dependiente salario. ¿Qué parte de la variación en la educación se explica por la regresión de la primera etapa que utiliza la distancia como regresor?
 
